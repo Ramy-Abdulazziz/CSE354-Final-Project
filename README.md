@@ -150,3 +150,175 @@ class CustomDatasetLoader(Dataset):
         return data_loader
 
 ```
+
+# Training Class
+
+During initial training on the Financial Phrasebank Dataset - the original Trainer class was used from HW 3 with only a slight change to handle the specifc keys in the dataset.
+
+```
+ def tokenize_data(self):
+    print("Processing data..")
+    tokens = []
+    labels = []
+    label_dict = {'positive': 2, 'negative': 0, 'neutral':1}
+
+    sentance_list = self.data['sentence']
+    label_list = self.data['label']
+
+    ...
+```
+
+## Custom Training Class
+
+When doing our Custom trainng we used a modified version of the original training class that was able to handle our custom data set (Yahoo Finance Articles), using our custom data loader, This involved a small modification to the initilization to use our pretrained model, and tokenizer - note the options were also modified to accomadate our needs. The execute method was also modified to use our custom data set loader: 
+
+```
+
+class CustomTrainer():
+
+  def __init__(self, options):
+    self.device = options['device']
+    self.train_data = options['train_data']
+    self.train_label = options['train_labels']
+    self.val_data = options['val_data']
+    self.batch_size = options['batch_size']
+    self.epochs = options['epochs']
+    self.save_path = options['save_path']
+    self.training_type = options['training_type']
+    self.model_path = options['model_path']
+    self.model = AutoModelForSequenceClassification.from_pretrained(self.model_path)
+    self.tokenizer = AutoTokenizer.from_pretrained(self.model_path)
+    self.model.to(self.device)
+
+    ...
+
+    def execute(self):
+    last_best = 0
+    train_dataset = CustomDatasetLoader(self.train_data, self.train_label, self.tokenizer)
+    train_data_loader = train_dataset.get_data_loaders(self.batch_size)
+    val_dataset = DatasetLoader(self.val_data, self.tokenizer)
+    val_data_loader = val_dataset.get_data_loaders(self.batch_size)
+    optimizer = torch.optim.AdamW(self.model.parameters(), lr=3e-5, eps=1e-8)
+    self.set_training_parameters()
+    for epoch_i in range(0, self.epochs):
+        train_precision, train_recall, train_f1, train_loss = self.train(train_data_loader, optimizer)
+        print(f'Epoch {epoch_i + 1}: train_loss: {train_loss:.4f} train_precision: {train_precision:.4f} train_recall: {train_recall:.4f} train_f1: {train_f1:.4f}')
+        val_precision, val_recall, val_f1, val_loss = self.eval(val_data_loader)
+        print(f'Epoch {epoch_i + 1}: val_loss: {val_loss:.4f} val_precision: {val_precision:.4f} val_recall: {val_recall:.4f} val_f1: {val_f1:.4f}')
+
+        if val_f1 > last_best:
+            print("Saving model..")
+            self.save_transformer()
+            last_best = val_f1
+            print("Model saved.")
+```
+
+Also note that to use this class the method of passing options has been changed specifically variable such as save path, batch size, and epochs, are defined inside the options dictionary, rather then outside as previously implemented: 
+
+```
+trainer_options = {
+    'device': torch.device("cuda:0" if torch.cuda.is_available() else "cpu"),
+    'train_data': article_dictionary,
+    'train_labels':validation,
+    'val_data': val_data, 
+    'batch_size': 16,
+    'epochs': 3,
+    'save_path': 'models/article_trained_electra_top_2_training',
+    'training_type': 'top_2_training',
+    'model_path': 'models/electra-small-discriminator_top_2_training'
+}
+
+```
+
+# Tester class
+
+The original tester class from HW3 was modified to return more information in the form of lists - and automatically graph data from the testing process. Functions were added to add this logic: 
+
+```
+class Tester():
+
+  ...
+
+  def test(self, data_loader):
+    self.model.eval()
+    total_recall = 0
+    total_precision = 0
+    total_f1 = 0
+    total_loss = 0
+    precision_list, recall_list, f1_list, loss_list = [], [], [], []
+
+    ...
+    
+    return precision, recall, f1, loss, precision_list, recall_list, f1_list, loss_list
+    
+  def plot_metrics(self, precision_list, recall_list, f1_list, loss_list):
+    plt.figure(figsize=(10, 6))
+
+    plt.plot(precision_list, label='Precision')
+    plt.plot(recall_list, label='Recall')
+    plt.plot(f1_list, label='F1 Score')
+    plt.plot(loss_list, label='Loss')
+
+    plt.xlabel('Batch')
+    plt.ylabel('Value')
+    plt.title('Test Metrics')
+    plt.legend(loc='best')
+    plt.show()
+
+  def plot_final_results(self, results, labels):
+    fig, ax = plt.subplots(1, 3, figsize=(15, 5))
+
+    precisions = [result[0] for result in results]
+    recalls = [result[1] for result in results]
+    f1_scores = [result[2] for result in results]
+
+    x = np.arange(len(labels))
+    width = 0.35
+
+    ax[0].bar(x, precisions, width, label='Precision')
+    ax[1].bar(x, recalls, width, label='Recall')
+    ax[2].bar(x, f1_scores, width, label='F1-score')
+
+    for i, metric in enumerate(['Precision', 'Recall', 'F1-score']):
+        ax[i].set_ylabel(metric)
+        ax[i].set_xticks(x)
+        ax[i].set_xticklabels(labels, rotation = 90)
+        ax[i].legend(loc='best')
+    
+    fig.suptitle('Test Performance Metrics for Different Training Regimes')
+    plt.gca().yaxis.grid(False)
+    plt.tight_layout()
+    plt.show()
+
+  def generate_latex_table(self, results, labels):
+    header = r'''
+    \begin{tabular}{|l|c|c|c|}
+    \hline
+    \textbf{Model and Training Regime} & \textbf{Precision} & \textbf{Recall} & \textbf{F1 Score} \\ \hline
+    '''
+    rows = []
+    for label, res in zip(labels, results):
+        row = f"{label} & {res[0]:.4f} & {res[1]:.4f} & {res[2]:.4f} \\\\ \\hline"
+        rows.append(row)
+
+    footer = r'''\end{tabular}'''
+
+    table = header + '\n' + '\n'.join(rows) + '\n' + footer
+    return table
+
+  def execute(self):
+    test_dataset = DatasetLoader(self.test_data, self.tokenizer)
+    test_data_loader = test_dataset.get_data_loaders(self.batch_size)
+
+    test_precision, test_recall, test_f1, test_loss, precision_list, recall_list, f1_list, loss_list = self.test(test_data_loader)
+
+    self.plot_metrics(precision_list, recall_list, f1_list, loss_list)
+
+    print()
+    print(f'test_loss: {test_loss:.4f} test_precision: {test_precision:.4f} test_recall: {test_recall:.4f} test_f1: {test_f1:.4f}')
+
+    return test_precision, test_recall, test_f1
+
+
+
+```
