@@ -254,7 +254,7 @@ Here we provide the finance articles used to test and train our models:
 
 # Original Code
 
-This project used a modified version of the CSE 354 HW 3 Assignment: 
+This project used a modified version of the CSE 354 HW 3 [Assignment](https://github.com/Ramy-Abdulazziz/CSE354-Final-Project/blob/main/Original%20Code/NLP_HW3.ipynb): 
 
 ## Model Class
 The original DistilBERT class was modified to a general model class to load eithr a pretrained DistilBERT or ELEKTRA Model, To 
