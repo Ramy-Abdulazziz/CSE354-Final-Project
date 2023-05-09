@@ -182,21 +182,21 @@ To test the newly trained model, the process is the same as the previously outli
 Here we provide the finance articles used to test and train our models: 
 
 
-[negative_interest_rate] (https://finance.yahoo.com/news/federal-reserve-interest-rate-decision-may-3-155524134.html)
+[negative_interest_rate](https://finance.yahoo.com/news/federal-reserve-interest-rate-decision-may-3-155524134.html)
 
 [housing_market_positive](https://finance.yahoo.com/news/housing-confidence-jumps-by-largest-amount-in-two-years-183912533.html)
 
 
-[stocks_neutral] (https://finance.yahoo.com/news/stock-market-news-today-live-updates-may-8-115018101.html)
+[stocks_neutral](https://finance.yahoo.com/news/stock-market-news-today-live-updates-may-8-115018101.html)
 
 
-[tesla_positive] (https://finance.yahoo.com/news/tesla-stock-jumps-55-on-friday-snaps-longest-weekly-losing-streak-since-2021-201813547.html)
+[tesla_positive](https://finance.yahoo.com/news/tesla-stock-jumps-55-on-friday-snaps-longest-weekly-losing-streak-since-2021-201813547.html)
 
 
-[lyft_negative] (https://finance.yahoo.com/news/lyft-q1-earnings-143301253.html)
+[lyft_negative](https://finance.yahoo.com/news/lyft-q1-earnings-143301253.html)
 
 
-[peloton_negative] (https://finance.yahoo.com/news/peloton-stock-tanks-on-forecast-for-challenging-fourth-quarter-194437985.html)
+[peloton_negative](https://finance.yahoo.com/news/peloton-stock-tanks-on-forecast-for-challenging-fourth-quarter-194437985.html)
 
 
 [ai_neutral](https://finance.yahoo.com/news/ai-is-an-inevitability-but-theres-one-area-it-wont-completely-change-greycrofts-dana-settle-182051256.html)
@@ -217,22 +217,22 @@ Here we provide the finance articles used to test and train our models:
 [apple_neutral](https://finance.yahoo.com/news/apple-isnt-playing-the-ai-hype-game-190726240.html)
 
 
-[negative_interest_rate] (https://finance.yahoo.com/news/federal-reserve-interest-rate-decision-may-3-155524134.html)
+[negative_interest_rate](https://finance.yahoo.com/news/federal-reserve-interest-rate-decision-may-3-155524134.html)
 
 
 [negative_warren_buffet](https://finance.yahoo.com/news/buffett-on-the-regional-bank-crisis-messed-up-incentives-and-poor-communication-211138275.html)
 
 
-[carvana_positive ](https://finance.yahoo.com/news/carvana-stock-surges-as-used-car-dealer-sees-q2-profit-135040050.html)
+[carvana_positive](https://finance.yahoo.com/news/carvana-stock-surges-as-used-car-dealer-sees-q2-profit-135040050.html)
 
 
-[banks_neg] (https://finance.yahoo.com/news/close-190-banks-could-face-163717073.html)
+[banks_neg](https://finance.yahoo.com/news/close-190-banks-could-face-163717073.html)
 
 
-[unforadableBank_negative] (https://finance.yahoo.com/news/housing-unaffordable-banks-losing-money-014524600.html)
+[unforadableBank_negative](https://finance.yahoo.com/news/housing-unaffordable-banks-losing-money-014524600.html)
 
 
-[stockDividend_postive] (https://finance.yahoo.com/news/6-7-yielding-dividend-etf-213300385.html)
+[stockDividend_postive](https://finance.yahoo.com/news/6-7-yielding-dividend-etf-213300385.html)
 
 
 [Mortgage_negative](https://finance.yahoo.com/news/housing-market-2023-prices-now-171702377.html)
