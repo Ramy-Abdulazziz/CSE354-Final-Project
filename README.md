@@ -1,5 +1,7 @@
-# CSE354-Final-Project
-Final project for CSE354
+# Project Overview
+For this project, the main goal was to train different models to predict sentiment analysis of financial documents, finding the best type of model, training data, training routines, and hyper-parameters to do so. We begin by comparing the general accuracy of pre-trained models on the Financial Phrasebank dataset, and through experimentation and comparison, determine the best model to use for more general sentiment analysis. Overall, we wish to provide a model that is able to accurately determine the sentiment of any general financial document or article. More formally we train our models to do multi-class sentiment analysis, aiming to classify documents into several sentiment classes (positive, negative, neutral). We formalize this as a multi-class classification problem where our model can be represented as a function that takes in a document $D$ as input and produces a sentiment score $S$ as output: 
+
+$$f : D \rightarrow \{pos,neg,neutral\} , f(D) = S $$
 
 # Group Members
 
