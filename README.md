@@ -1,6 +1,12 @@
 # CSE354-Final-Project
 Final project for CSE354
 
+# Group Members
+
+- Ramy Abdulazziz
+- Ryan Engel
+- Sahibjot Bhullar
+
 # Requirements
 - Python 3.x installed
 - PyTorch installed
@@ -21,6 +27,231 @@ Final project for CSE354
 !pip install responses
 !pip install scikit-learn
 !pip install matplotlib
+```
+# How to run
+## Loading the Dataset
+After installing and importing requirments, for the first portion of our project we train on the Financial Phrasebank Dataset, we use different splits of the set to make a training, testing, and validation sets.
+## Financial Phrasebank
+```
+train_data = load_dataset('financial_phrasebank', 'sentences_75agree', split='train')
+val_data = load_dataset('financial_phrasebank', 'sentences_66agree', split='train')
+test_data = load_dataset('financial_phrasebank', 'sentences_allagree', split='train')
+```
+## Training
+Be sure to fill out the save path you would like to use here along with the batch size and epochs: 
+
+```
+BATCH_SIZE = 16
+EPOCHS = 3
+SAVE_PATH = 'add your save path'
+```
+and be sure to navigate to the appropriate directory that is defined for your save path we assume a google drive folder will be mounted: 
+```
+from google.colab import drive
+drive.mount('/content/drive')
+
+%cd "drive/MyDrive/"
+```
+To do the initial training with this dataset, use the Trainer() class similar to HW3: 
+
+
+```
+options = {}
+options['batch_size'] = BATCH_SIZE
+options['device'] = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+options['train_data'] = train_data
+options['val_data'] = val_data
+options['save_path'] = SAVE_PATH + '_all_training'
+options['epochs'] = EPOCHS
+options['training_type'] = 'all_layers'
+trainer = Trainer(options)
+trainer.execute()
+```
+
+and be sure to define the appropriate model name in the Model class before running (i.e. distilbert-base-uncased): 
+
+```
+class Model():
+  #Addappropriate model name here i.e. distilbert-base-uncased
+  def __init__(self, model_name ='google/electra-small-discriminator', num_classes=3):
+
+    ...
+```
+
+Also be sure that the dataloader class is loaded appropriately before begining training.
+
+## Testing
+For initial testing first be sure to initialize the results and labels lists: 
+
+```
+results = []
+labels = []
+```
+Then similar to HW3 be sure to define the appropriate save path in the Tester options, and run the test.
+```
+options = {}
+options['batch_size'] = BATCH_SIZE
+options['device'] = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+options['test_data'] = test_data
+options['save_path'] = 'models/your model path'
+tester = Tester(options)
+D2_results = tester.execute()
+
+```
+The execute function here is modified to return a list of results, and automatically provide a graph of test metrics that is visualized after the test proceure is completed.
+
+After running the tests you can generate a graph to compare all model performance results by calling the appropriate function shown below, optionally a Latex table can also be generated: 
+
+```
+results.clear()
+labels.clear()
+results.append(D4_results)
+labels.append('DistilBERT top 4')
+...
+...
+tester.plot_final_results(results, labels)
+tester.generate_latex_table(results,labels)
+```
+
+
+## Few Shot Testing 
+
+To test models on unlabeled financial articles from Yahoo Finance, instantiate the article_dictionary and validation dictionary: 
+
+```
+article_dictionary = {}
+validation = {}
+```
+
+Then define a variable to hold to article url, add it to the article_dictionary, and add the label to the validation dictionary. The get_article_text() function currently is made to work specifically with Yahoo Finance Articles, but the model can theoretically be tested using any article link, as long as a proper DOM traversal is defined in the function, to retrieve the nececarry text: 
+
+```
+negative_warren_buffet= r'https://finance.yahoo.com/news/buffett-on-the-regional-bank-crisis-messed-up-incentives-and-poor-communication-211138275.html'
+article_dictionary['warren buffet negative'] = negative_warren_buffet
+validation ['warren buffet negative'] = 'negative'
+```
+
+Next, instantiate the ModelEvaluator class with the appropriate keyword arguments. Note that for ELECTRA models, the keyword argument model_type = 'electra' MUST be passed. This is not nececarry for DistilBERT models. Be sure to pass in the appropriate model path: 
+
+```
+evaluator = ModelEvaluator(model_path='models/path to your model', model_type='electra')
+
+```
+
+The prediction sequence runs on a loop, passing each url to the evaluator, and storing its predictions and metrics. 
+
+```
+e2_preds = {}
+for description, link in article_dictionary.items():
+  predictions = evaluator.analyze_article(link)
+  e2_preds[description] = predictions[0]
+
+  print(f'\n The article {description} is predicted to be {predictions[0]}')
+e2_metrics = evaluator.calculate_metrics(list(e2_preds.values()), list(validation.values()))
+print(f'Accuracy:{e2_metrics[0]:.4f} Precision:{e2_metrics[1]:.4f} Recall:{e2_metrics[2]:.4f} f1:{e2_metrics[3]:.4f}')
+```
+
+Then run the appropriate code blocks to graph and visualize the results. An optional latex table can also be generated. 
+## Custom Training on Financial Articles
+To do custom training on financial articles, first run the code blocks defining the custom trainer and data loaders, and then appropriately define the trainer_options. Be sure to pass the appropriate save path, training type, and model path: 
+
+```
+trainer_options = {
+    'device': torch.device("cuda:0" if torch.cuda.is_available() else "cpu"),
+    'train_data': article_dictionary,
+    'train_labels':validation,
+    'val_data': val_data, 
+    'batch_size': 16,
+    'epochs': 3,
+    'save_path': 'models/your save path here',
+    'training_type': 'training type',
+    'model_path': 'models/your model path here'
+}
+
+```
+Then run the trainer:
+
+```
+trainer = CustomTrainer(trainer_options)
+trainer.execute()
+```
+
+To test the newly trained model, the process is the same as the previously outlined Few Shot testing. 
+
+# Yahoo Finance Articles Used
+Here we provide the finance articles used to test and train our models: 
+
+
+```
+[negative_interest_rate] (https://finance.yahoo.com/news/federal-reserve-interest-rate-decision-may-3-155524134.html)
+
+(housing_market_positive](https://finance.yahoo.com/news/housing-confidence-jumps-by-largest-amount-in-two-years-183912533.html)
+
+
+[stocks_neutral] (https://finance.yahoo.com/news/stock-market-news-today-live-updates-may-8-115018101.html)
+
+
+[tesla_positive (https://finance.yahoo.com/news/tesla-stock-jumps-55-on-friday-snaps-longest-weekly-losing-streak-since-2021-201813547.html)
+
+
+[lyft_negative] (https://finance.yahoo.com/news/lyft-q1-earnings-143301253.html)
+
+
+[peloton_negative] (https://finance.yahoo.com/news/peloton-stock-tanks-on-forecast-for-challenging-fourth-quarter-194437985.html)
+'
+
+[ai_neutral](https://finance.yahoo.com/news/ai-is-an-inevitability-but-theres-one-area-it-wont-completely-change-greycrofts-dana-settle-182051256.html'
+
+
+[medical_debt_positive](https://finance.yahoo.com/news/millions-poised-to-get-a-better-credit-score-after-medical-debt-dropped-from-reports-210927590.html)
+
+
+[sp_positive(https://finance.yahoo.com/news/stifel-raises-sp-forecast-citing-economic-resilience-164216721.html)
+
+
+[stock_market_negative](https://finance.yahoo.com/news/stocks-slump-as-regional-banks-tank-stock-market-news-today-153658149.html)
+
+
+[paramaount_negative](https://finance.yahoo.com/news/paramount-earnings-first-quarter-2023-may-4-112140604.html)
+
+
+[apple_neutral](https://finance.yahoo.com/news/apple-isnt-playing-the-ai-hype-game-190726240.html)
+
+
+[negative_interest_rate] (https://finance.yahoo.com/news/federal-reserve-interest-rate-decision-may-3-155524134.html)
+
+
+[negative_warren_buffet](https://finance.yahoo.com/news/buffett-on-the-regional-bank-crisis-messed-up-incentives-and-poor-communication-211138275.html)
+
+
+[carvana_positive ](https://finance.yahoo.com/news/carvana-stock-surges-as-used-car-dealer-sees-q2-profit-135040050.html)
+
+
+[banks_neg] (https://finance.yahoo.com/news/close-190-banks-could-face-163717073.html)
+
+
+[unforadableBank_negative] (https://finance.yahoo.com/news/housing-unaffordable-banks-losing-money-014524600.html)
+
+
+[stockDividend_postive] (https://finance.yahoo.com/news/6-7-yielding-dividend-etf-213300385.html)
+
+
+[Mortgage_negative](https://finance.yahoo.com/news/housing-market-2023-prices-now-171702377.html)
+
+[portfolio_neutral](https://finance.yahoo.com/video/portfolio-diversification-really-important-millennial-194044581.html)
+
+
+[investing_neutral](https://www.yahoo.com/news/invest-stocks-beginner-guide-100009203.html)
+
+
+[lifestyle_neutral](https://www.yahoo.com/lifestyle/there-are-two-types-of-stocks-on-robinhood-181831860.html)
+
+
+[economy_postive](https://finance.yahoo.com/news/us-economy-has-regained-growth-momentum-in-april-as-recession-fears-swirl-161520510.html)
+
+
+[tech_positive](https://finance.yahoo.com/news/why-tech-stocks-doing-well-150903541.html)
+
 ```
 
 # Original Code
@@ -248,7 +479,7 @@ class Tester():
     precision_list, recall_list, f1_list, loss_list = [], [], [], []
 
     ...
-    
+
     return precision, recall, f1, loss, precision_list, recall_list, f1_list, loss_list
     
   def plot_metrics(self, precision_list, recall_list, f1_list, loss_list):
@@ -291,7 +522,7 @@ class Tester():
     plt.show()
 
   def generate_latex_table(self, results, labels):
-    header = r'''
+    header [''
     \begin{tabular}{|l|c|c|c|}
     \hline
     \textbf{Model and Training Regime} & \textbf{Precision} & \textbf{Recall} & \textbf{F1 Score} \\ \hline
@@ -301,7 +532,7 @@ class Tester():
         row = f"{label} & {res[0]:.4f} & {res[1]:.4f} & {res[2]:.4f} \\\\ \\hline"
         rows.append(row)
 
-    footer = r'''\end{tabular}'''
+    footer [''\end{tabular}'''
 
     table = header + '\n' + '\n'.join(rows) + '\n' + footer
     return table
@@ -320,5 +551,82 @@ class Tester():
     return test_precision, test_recall, test_f1
 
 
+
+```
+
+We also created a custom ModelEvaluator class, this class used a method analyze_article() which pulled the text from given Yahoo Finance articles, tokenized them, and made predictions on this unlabeled data. These predictions were used as a metric compared against our own opinions about which class each article fell into , in order to judge performance. 
+
+```
+def get_article_text(url):
+  headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36'}
+
+  response = requests.get(url, headers=headers)
+  if response.status_code == 200:
+      soup = BeautifulSoup(response.content, "html.parser")
+
+      # Find the article body
+      article_body = soup.find("div", class_="caas-body")
+
+      # Extract all the paragraph texts
+      paragraphs = article_body.find_all("p")
+      text = " ".join([p.text for p in paragraphs])
+
+  else:
+      print(f"Failed to download the webpage. Status code: {response.status_code}")
+      text = ""
+
+  return [text]
+```
+
+```
+class ModelEvaluator():
+
+  def __init__(self, model_path, model_type='distilbert'):
+    self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+    self.model = AutoModelForSequenceClassification.from_pretrained(model_path)
+    self.tokenizer = AutoTokenizer.from_pretrained(model_path)
+    self.model.to(self.device)
+    self.model_type = model_type
+
+  def analyze_article(self, url):
+    # Get the article text
+    data = get_article_text(url)
+
+    # Tokenize the text
+    unlabeled_dataset = DatasetLoaderSingle(data, self.tokenizer, labels=None)
+    self.model.eval()
+    predictions = []
+    label_dict = {2:'positive', 0:'negative', 1:'neutral'}
+
+    with torch.no_grad():
+        for input_ids, attention_mask in tqdm(unlabeled_dataset):
+            input_ids = input_ids.to(self.device)
+            attention_mask = attention_mask.to(self.device)
+
+            if self.model_type == 'electra':
+                input_ids = input_ids.unsqueeze(0)
+                attention_mask = attention_mask.unsqueeze(0)
+
+            outputs = self.model(input_ids, attention_mask=attention_mask)
+            logits = outputs.logits
+            preds = torch.argmax(logits, dim=1).cpu().numpy()
+            label = label_dict[preds[0]]
+            predictions.append(label)
+
+    return predictions
+
+  def calculate_metrics(self, predictions, labels):
+    y_pred = predictions
+    y_true = labels
+    label_dict = {'positive': 2, 'negative': 0, 'neutral':1}
+    y_true = [label_dict[val] for val in y_true]
+    y_pred = [label_dict[val] for val in y_pred]
+
+    accuracy = accuracy_score(y_true, y_pred)
+    precision = precision_score(y_true, y_pred, average='weighted', zero_division=0)
+    recall = recall_score(y_true, y_pred, average='weighted', zero_division=0)
+    f1 = f1_score(y_true, y_pred, average='weighted', zero_division=0)
+
+    return accuracy, precision, recall, f1
 
 ```
