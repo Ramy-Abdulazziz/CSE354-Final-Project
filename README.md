@@ -182,31 +182,30 @@ To test the newly trained model, the process is the same as the previously outli
 Here we provide the finance articles used to test and train our models: 
 
 
-```
 [negative_interest_rate] (https://finance.yahoo.com/news/federal-reserve-interest-rate-decision-may-3-155524134.html)
 
-(housing_market_positive](https://finance.yahoo.com/news/housing-confidence-jumps-by-largest-amount-in-two-years-183912533.html)
+[housing_market_positive](https://finance.yahoo.com/news/housing-confidence-jumps-by-largest-amount-in-two-years-183912533.html)
 
 
 [stocks_neutral] (https://finance.yahoo.com/news/stock-market-news-today-live-updates-may-8-115018101.html)
 
 
-[tesla_positive (https://finance.yahoo.com/news/tesla-stock-jumps-55-on-friday-snaps-longest-weekly-losing-streak-since-2021-201813547.html)
+[tesla_positive] (https://finance.yahoo.com/news/tesla-stock-jumps-55-on-friday-snaps-longest-weekly-losing-streak-since-2021-201813547.html)
 
 
 [lyft_negative] (https://finance.yahoo.com/news/lyft-q1-earnings-143301253.html)
 
 
 [peloton_negative] (https://finance.yahoo.com/news/peloton-stock-tanks-on-forecast-for-challenging-fourth-quarter-194437985.html)
-'
 
-[ai_neutral](https://finance.yahoo.com/news/ai-is-an-inevitability-but-theres-one-area-it-wont-completely-change-greycrofts-dana-settle-182051256.html'
+
+[ai_neutral](https://finance.yahoo.com/news/ai-is-an-inevitability-but-theres-one-area-it-wont-completely-change-greycrofts-dana-settle-182051256.html)
 
 
 [medical_debt_positive](https://finance.yahoo.com/news/millions-poised-to-get-a-better-credit-score-after-medical-debt-dropped-from-reports-210927590.html)
 
 
-[sp_positive(https://finance.yahoo.com/news/stifel-raises-sp-forecast-citing-economic-resilience-164216721.html)
+[sp_positive](https://finance.yahoo.com/news/stifel-raises-sp-forecast-citing-economic-resilience-164216721.html)
 
 
 [stock_market_negative](https://finance.yahoo.com/news/stocks-slump-as-regional-banks-tank-stock-market-news-today-153658149.html)
@@ -252,7 +251,6 @@ Here we provide the finance articles used to test and train our models:
 
 [tech_positive](https://finance.yahoo.com/news/why-tech-stocks-doing-well-150903541.html)
 
-```
 
 # Original Code
 
